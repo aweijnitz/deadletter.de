@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+  app:
+    build:
+      dockerfile: Dockerfile-dev
+      context: .
+    command: npm run dev
+    volumes:
+      - "./:/home/node/app/"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=root
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3000:3000/tcp"
+    depends_on:
+      - db

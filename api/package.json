@@ -1,0 +1,21 @@
+{
+  "name": "deadletter-api",
+  "version": "0.0.1",
+  "description": "Service for sharing files temporarily",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf build && mkdir build",
+    "build": "npm run clean",
+    "start": "node ./index.js",
+    "dev": "nodemon --inspect=0.0.0.0:9229 ./index.js"
+  },
+  "author": "Anders Weijnitz",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  }
+}
