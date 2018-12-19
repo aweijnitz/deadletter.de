@@ -19,7 +19,7 @@ WORKDIR /home/node/app
 
 # Install deps for production only
 COPY ./package* ./
-RUN npm install && \
+RUN npm install --only=production && \
     npm cache clean --force
 # Copy builded source from the upper builder stage
 COPY --from=builder /home/node/app/build ./build

@@ -7,6 +7,11 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_DATABASE
+      - MYSQL_ROOT_HOST
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    volumes:
+      - ./mysqldata:/var/lib/mysql
   app:
     build:
       dockerfile: Dockerfile-dev
@@ -15,11 +20,15 @@ services:
     volumes:
       - "./:/home/node/app/"
     environment:
-      - DB_HOST=db
-      - DB_NAME=${MYSQL_DATABASE}
-      - DB_USER=root
-      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - EXAMPLE=db
     ports:
       - "3000:3000/tcp"
+    depends_on:
+      - db
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+    - 8080:8080
     depends_on:
       - db
