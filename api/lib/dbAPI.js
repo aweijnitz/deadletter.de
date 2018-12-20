@@ -6,6 +6,17 @@ const config = require('../config/config');
 let _dbPool = null; // Singleton
 
 
+
+const ensureSchema = (pool, cb) => {
+  // TODO: Check for schema present, or create it
+  pool.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+    if (error)
+      cb(error);
+    else
+      cb(null, results);
+  });
+};
+
 const initDb = () => {
   if (_dbPool) {
     console.warn("Database already initialized!");
@@ -21,16 +32,8 @@ const initDb = () => {
     database: config.get('db.name')
   };
 
-  console.log(conf);
 
-  _dbPool  = mysql.createPool({
-    connectionLimit : 5,
-    queueLimit: 16,
-    host: config.get('db.host'),
-    user: config.get('db.user'),
-    password: config.get('db.password'),
-    database: config.get('db.name')
-  });
+  _dbPool  = mysql.createPool(conf);
 
   return _dbPool;
 };
