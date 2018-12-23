@@ -1,57 +1,36 @@
 const express = require('express');
 const config = require('./config/config.js');
 const initDb = require('./lib/dbAPI').initDb;
-const getDb = require('./lib/dbAPI').getDb;
+const getDbPool = require('./lib/dbAPI').getDbPool;
+const closeDb = require('./lib/dbAPI').closeDB;
+const mountShutdownHandlers = require('./lib/mounShutdownHandlers').mountShutdownHandlers;
 
-const app = express();
-const dbConn = initDb();
-
-
-const applicationShutdown = () => {
-  getDb().end();
+const applicationShutdown = async () => {
+  return await closeDb();
 };
-
-// Be nice process citizen and respect OS signals
-process.on('SIGTERM', function () {
-  applicationShutdown();
-  console.log('SHUTDOWN (TERMINATED)');
-  process.exit(0);
-});
-process.on('SIGINT', function () {
-  applicationShutdown();
-  console.log('SHUTDOWN (INTERRUPTED)');
-  process.exit(0);
-});
-process.on('SIGTSTP', function () {
-  applicationShutdown();
-  console.log('SHUTDOWN (STOPPED)');
-  process.exit(0);
-});
+mountShutdownHandlers(applicationShutdown);
 
 
-const queryDB = (conn, cb) => {
+const service = async function () {
 
-  conn.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-    if (error)
-      cb(error);
-    else
-      cb(null, results);
-  });
-};
+  const app = express();
+  const pool = await initDb();
 
+  app.get('/', function (req, res) {
 
-app.get('/', function (req, res) {
-  queryDB(dbConn, (err, results) => {
-    if (err)
+    try {
+      res.send('Hello World!');
+    } catch (err) {
       res.send('ERROR ' + err.code);
-    else
-      res.send('Hello World! Solution ' + results[0].solution);
+    }
+
   });
 
-});
+  let server = app.listen(config.get('port'), function () {
+    let adr = server.address();
+    console.log('Example app listening on port ' + adr.port);
+  });
 
-let server = app.listen(config.get('port'), function () {
-  let adr = server.address();
-  console.log('Example app listening on port ' + adr.port);
-});
+};
 
+let p = service();

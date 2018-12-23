@@ -13,6 +13,7 @@
   "author": "Anders Weijnitz",
   "license": "ISC",
   "dependencies": {
+    "async-retry": "^1.2.3",
     "convict": "^4.4.1",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
