@@ -17,7 +17,11 @@
     "convict": "^4.4.1",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
-    "mysql": "^2.16.0"
+    "express-rate-limit": "^3.3.2",
+    "helmet": "^3.15.0",
+    "mysql": "^2.16.0",
+    "sql-injection": "0.0.6",
+    "sqlstring": "^2.3.1"
   },
   "devDependencies": {
     "nodemon": "^1.18.9"

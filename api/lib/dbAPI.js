@@ -1,5 +1,6 @@
 const util = require('util');
 const mysql = require("mysql");
+const SqlString = require('sqlstring');
 const retry = require('async-retry');
 const config = require('../config/config');
 
@@ -17,10 +18,7 @@ CREATE TABLE \`uploads\` (
 );
 `;
 
-const addFileSQL = `
-INSERT INTO \`uploads\` (\`filename\`, \`created_on\`, \`path\`, \`md5hash\`, \`last_download_on\`, \`accesscount\`)
-VALUES ('my_first upload üäö', now(), '/some/path', '1293234849230423', NULL, NULL);
-`;
+
 
 const ensureSchema = async () => {
   try {
@@ -37,6 +35,15 @@ const ensureSchema = async () => {
     console.log('Ensuring schema ERR ' + err.code);
     throw new Error(err);
   }
+
+};
+
+const addFileEntry = async (fileName, serverPath) => {
+
+  const addFileSQL = `
+INSERT INTO \`uploads\` (\`filename\`, \`created_on\`, \`path\`, \`md5hash\`, \`last_download_on\`, \`accesscount\`)
+VALUES ('${SqlString.escape(fileName)}', now(), '${SqlString.escape(serverPath)}', '1293234849230423', NULL, NULL);
+`;
 
 };
 

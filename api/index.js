@@ -1,4 +1,7 @@
 const express = require('express');
+const sqlinjection = require('sql-injection');
+const helmet = require('helmet');
+const rateLimit = require("express-rate-limit");
 const config = require('./config/config.js');
 const initDb = require('./lib/dbAPI').initDb;
 const getDbPool = require('./lib/dbAPI').getDbPool;
@@ -14,7 +17,18 @@ mountShutdownHandlers(applicationShutdown);
 const service = async function () {
 
   const app = express();
+  app.enable("trust proxy");
   const pool = await initDb();
+
+  app.use(helmet());
+  const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // window in minutes
+    max: 50 // limit each IP to N requests per windowMs
+  });
+  app.use(limiter);
+  app.configure(function() {
+    app.use(sqlinjection);  // add sql-injection middleware
+  });
 
   app.get('/', function (req, res) {
 
