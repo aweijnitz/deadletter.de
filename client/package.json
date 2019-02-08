@@ -9,6 +9,7 @@
   "author": "Anders Weijnitz",
   "license": "ISC",
   "devDependencies": {
+    "browser-sync": "^2.26.3",
     "fs-extra": "^7.0.1",
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "^6.0.0",

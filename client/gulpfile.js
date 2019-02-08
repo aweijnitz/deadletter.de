@@ -4,6 +4,7 @@ const autoprefixer = require('gulp-autoprefixer');
 const csso = require('gulp-csso');
 const plumber = require("gulp-plumber");
 const uglify = require("gulp-uglify");
+const browsersync = require("browser-sync").create();
 const fs = require('fs-extra');
 
 const distDir = 'dist';
@@ -18,6 +19,21 @@ const AUTOPREFIXER_BROWSERS = [
   'android >= 4.4',
   'bb >= 10'
 ];
+
+const browserSync = (done) => {
+  browsersync.init({
+    server: {
+      baseDir: distDir
+    },
+    port: 3030
+  });
+  done();
+};
+
+const browserSyncReload = (done) => {
+  browsersync.reload();
+  done();
+};
 
 const minifyHTML = () => {
   return gulp.src('src/**/*.html')
@@ -59,10 +75,18 @@ const clean = (done) => {
 };
 
 
-function defaultTask() {
+const watchFiles = () => {
+  gulp.watch(["./src/**/*.html"], gulp.series(minifyHTML, browserSyncReload));
+  gulp.watch(["./src/**/*.css"], gulp.series(minifyCSS, browserSyncReload));
+  gulp.watch(["./src/**/*.js"], gulp.series(minifyJS, browserSyncReload));
+};
+const watch = gulp.parallel(watchFiles, browserSync);
+
+const defaultTask = () => {
   return gulp.series(clean, build);
-}
+};
 
 exports.clean = clean;
 exports.build = build;
+exports.watch = watch;
 exports.default = defaultTask;

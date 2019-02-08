@@ -3,6 +3,10 @@ const mysql = require("mysql");
 const SqlString = require('sqlstring');
 const retry = require('async-retry');
 const config = require('../config/config');
+const md5 = require('md5');
+
+const codebase = '0123456789abcdefghijklmnopqrstuvwxyz';
+const base36 = require('base-x')(codebase);
 
 let _dbPool = null; // Singleton
 
@@ -12,7 +16,7 @@ CREATE TABLE \`uploads\` (
   \`filename\` varchar(512) NULL DEFAULT 'unnamed',
   \`created_on\` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,
   \`path\` varchar(512) NULL,
-  \`md5hash\` char(32) NOT NULL,
+  \`URLhash\` char(32) NOT NULL,
   \`last_download_on\` datetime NULL,
   \`accesscount\` int NULL
 );
@@ -38,11 +42,19 @@ const ensureSchema = async () => {
 
 };
 
+const encode = (str) => {
+  return base36.encode(md5(str));
+};
+
+const decode = (str) => {
+  return base36.decode(str).toString();
+};
+
 const addFileEntry = async (fileName, serverPath) => {
 
   const addFileSQL = `
 INSERT INTO \`uploads\` (\`filename\`, \`created_on\`, \`path\`, \`md5hash\`, \`last_download_on\`, \`accesscount\`)
-VALUES ('${SqlString.escape(fileName)}', now(), '${SqlString.escape(serverPath)}', '1293234849230423', NULL, NULL);
+VALUES ('${SqlString.escape(fileName)}', now(), '${SqlString.escape(serverPath)}', '${encode(serverPath)}', NULL, NULL);
 `;
 
 };
@@ -53,7 +65,7 @@ const closeDB = async () => {
 };
 
 /**
- * Create db conection pool and ensure db schema present
+ * Create db connection pool and ensure db schema present
  *
  * @return {Promise<*>}
  */
