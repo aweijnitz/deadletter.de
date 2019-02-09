@@ -7,7 +7,9 @@ const uglify = require("gulp-uglify");
 const browsersync = require("browser-sync").create();
 const fs = require('fs-extra');
 
-const distDir = 'dist';
+let distDir = 'dist';
+const webRoot = '../api/webroot';
+
 const AUTOPREFIXER_BROWSERS = [
   'ie >= 11',
   'ie_mob >= 11',
@@ -74,13 +76,23 @@ const clean = (done) => {
   return done();
 };
 
+const install = (done) => {
+  distDir = webRoot;
+  return gulp.series(clean, build)(done);
+};
 
 const watchFiles = () => {
   gulp.watch(["./src/**/*.html"], gulp.series(minifyHTML, browserSyncReload));
   gulp.watch(["./src/**/*.css"], gulp.series(minifyCSS, browserSyncReload));
   gulp.watch(["./src/**/*.js"], gulp.series(minifyJS, browserSyncReload));
 };
-const watch = gulp.parallel(watchFiles, browserSync);
+
+const watchLocal = gulp.parallel(watchFiles, browserSync);
+
+const watchInstall = (done) => {
+  distDir = webRoot;
+  return gulp.parallel(watchFiles, browserSync)(done);
+};
 
 const defaultTask = () => {
   return gulp.series(clean, build);
@@ -88,5 +100,7 @@ const defaultTask = () => {
 
 exports.clean = clean;
 exports.build = build;
-exports.watch = watch;
+exports.install = install;
+exports.watch_local = watchLocal;
+exports.watch_install = watchInstall;
 exports.default = defaultTask;
