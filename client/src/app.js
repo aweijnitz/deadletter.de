@@ -79,7 +79,6 @@
             ajaxData.append($input.attr('name'), file);
           });
         }
-
         // ajax request
         $.ajax(
           {
