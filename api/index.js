@@ -2,6 +2,7 @@ const express = require('express');
 const sqlinjection = require('sql-injection');
 const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
+const serveStatic = require('serve-static');
 const config = require('./config/config.js');
 const initDb = require('./lib/dbAPI').initDb;
 const closeDb = require('./lib/dbAPI').closeDB;
@@ -21,6 +22,7 @@ const service = async function () {
   const app = express();
   app.enable("trust proxy");
   app.use(helmet());
+  app.use(serveStatic('webroot', {'index': ['index.html', 'index.htm']}));
   const limiter = rateLimit({
     windowMs: 10 * 60 * 1000, // window in minutes
     max: 10 // limit each IP to N requests per windowMs
@@ -28,15 +30,6 @@ const service = async function () {
   app.use(limiter);
   app.use(sqlinjection);  // add sql-injection middleware
 
-  app.get('/', function (req, res) {
-
-    try {
-      res.send('Hello World!');
-    } catch (err) {
-      res.send('ERROR ' + err.code);
-    }
-
-  });
 
   let server = app.listen(config.get('port'), function () {
     let adr = server.address();
